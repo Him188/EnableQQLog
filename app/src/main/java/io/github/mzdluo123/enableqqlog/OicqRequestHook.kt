@@ -81,7 +81,7 @@ class OicqRequestHook : IXposedHookLoadPackage {
                                         cmd = getIntField(obj, "t"),
                                         subCmd = getIntField(obj, "u"),
                                         svcCmd = getObjectField(obj, "v") as String,
-                                        sessionKey = getObjectField(obj, "c") as ByteArray
+                                        sessionKey = byteArrayOf()//getObjectField(obj, "c") as ByteArray
                                     ), data
                                 ), PacketType.OICQ
                             )
@@ -244,6 +244,46 @@ class OicqRequestHook : IXposedHookLoadPackage {
             //      }
         }.let {
             pushLog("Oicq Send E: $it")
+        }
+
+        // ????
+        //  byte[] oicq.wlogin_sdk.request.oicq_request.a(byte[],byte[],byte[],byte[],int)
+        kotlin.runCatching {
+            XposedHelpers.findAndHookMethod(
+                clazz,
+
+                "a",
+                ByteArray::class.java,
+                ByteArray::class.java,
+                ByteArray::class.java,
+                ByteArray::class.java,
+                java.lang.Integer.TYPE,
+
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        pushLog("Oicq Send F: $param")
+                        kotlin.runCatching {
+                            val obj = param.thisObject
+
+                            val data = (param.args[0] as ByteArray).dropLastWhile { it == 0.toByte() }.toByteArray()
+                            LogUpload.upload(
+                                Direction.OUT, "Oicq Send F", OicqHookOnMakePacket(
+                                    OicqRequest(
+                                        cmd = getIntField(obj, "t"),
+                                        subCmd = getIntField(obj, "u"),
+                                        svcCmd = getObjectField(obj, "v") as String,
+                                    ), data
+                                ), PacketType.OICQ
+                            )
+                        }.onFailure {
+                            pushLog(it.stackTraceToString())
+                        }
+                    }
+                }
+            )
+            //      }
+        }.let {
+            pushLog("Oicq Send F: $it")
         }
 
         /*

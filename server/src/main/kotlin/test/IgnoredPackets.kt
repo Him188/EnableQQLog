@@ -41,6 +41,9 @@ internal val IgnoredPackets = arrayOf(
 
     "OnlinePush.PbPushGroupMsg",
     "LightAppSvc.mini_app_userapp.GetDropdownAppList",
+
+    "SSO.LoginMerge",
+    "scupdate.handle",
 )
 
 

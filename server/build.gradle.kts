@@ -29,7 +29,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class.java) {
     }
 }
 
-val miraiVersion = "2.3.2"
+val miraiVersion = "2.6.3"
 
 dependencies {
 
